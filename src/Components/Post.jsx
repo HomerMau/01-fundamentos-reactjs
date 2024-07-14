@@ -23,6 +23,8 @@ export function Post({ author, publishedAt, content }) {
 
   const [newCommentText, setNewCommentText] = useState('')
 
+console.log(newCommentText)
+
   const publishedDateFormatted = format(
     publishedAt,
     "d 'de' LLLL 'às' HH:mm'h'",
@@ -53,10 +55,30 @@ export function Post({ author, publishedAt, content }) {
     }
 
     function handleNewCommentChange() {
+      event.target.setCustomValidity("") // Resetar o custom value
       setNewCommentText(event.target.value);
       // console.log(event.target.value)
       // console.log("teeeeeeeeeeeeeevwsmfe")
     }
+
+    function handleNewCommentInvalid() {
+      // console.log("Invalido é ",event)
+      event.target.setCustomValidity('Esse campo é obrigatório!')
+    }
+
+    function deleteComment(commentToDelete) {
+      // console.log("ss", comment)
+
+      // Imutabilidade = as variáveis não sofrem mutação, nos criamos um novo valor (espaço na memória)
+
+      const commentsWithoutDeletedOne = comments.filter(comment => {
+        return comment != commentToDelete;
+      })
+
+      setComments(commentsWithoutDeletedOne);
+    }
+
+    const isNewCommentEmpty = newCommentText.length == 0;
 
   return (
     <article className={styles.post}>
@@ -95,16 +117,29 @@ export function Post({ author, publishedAt, content }) {
         <strong>Deixe seu feedback</strong>
 
         <textarea
-        name="comment" placeholder="Deixe um comentário" value={newCommentText} onChange={handleNewCommentChange}/>
+          name="comment" 
+          placeholder="Deixe um comentário" 
+          value={newCommentText} 
+          onChange={handleNewCommentChange}
+          onInvalid={handleNewCommentInvalid}
+
+          required
+        />
 
         <footer>
-          <button type="submit">Publicar</button>
+          <button type="submit" disabled={isNewCommentEmpty}>Publicar</button>
         </footer>
       </form>
 
       <div className={styles.commentList}>
         {comments.map(comment => {
-          return <Comment key={comment} content={comment}/>
+          return (
+            <Comment 
+              key={comment} 
+              content={comment} 
+              onDeleteComment={deleteComment}
+              />
+            )
         }
         ) 
         }
